@@ -16,6 +16,7 @@ typedef struct Player {
 typedef struct EnvItem {
     Rectangle rect;
     int blocking;
+    int actif;
     Color color;
 } EnvItem;
 
@@ -26,17 +27,17 @@ static bool isGameOver =false;
 
 static Player player = { 0 };
 static EnvItem envItems[] = {
-        {{ 0, -400, 1000, 800 }, 0, YELLOW }, //bacground ?
-        {{ 0, 400, 1000, 200 }, 1, GRAY },
-        {{ 300, 200, 400, 10 }, 1, BLACK },
-        {{ 250, 300, 100, 10 }, 1, BLUE },
-        {{ 650, 300, 100, 10 }, 1, GREEN },
-        {{ 650, -400, 100, 10 }, 1, RED },
-        {{ 650, -300, 100, 10 }, 1, RED },
-        {{ 650, -200, 100, 10 }, 1, RED },
-        {{ 650, -100, 100, 10 }, 1, RED },
-        {{ 650, 0, 100, 10 }, 1, RED },
-        {{ 650, 100, 100, 10 }, 1, RED }
+        {{ 0, -400, 1000, 800 }, 0,1, YELLOW }, // rect. / color/
+        {{ 0, 400, 1000, 200 }, 1,1, GRAY },
+        {{ 300, 200, 400, 10 }, 1,1, BLACK },
+        {{ 250, 300, 100, 10 }, 1,1, BLUE },
+        {{ 650, 300, 100, 10 }, 1,1, GREEN },
+        {{ 650, -400, 100, 10 }, 1,1, RED },
+        {{ 650, -300, 100, 10 }, 1,1, RED },
+        {{ 650, -200, 100, 10 }, 1,1, RED },
+        {{ 650, -100, 100, 10 }, 1,1 ,RED },
+        {{ 650, 0, 100, 10 }, 1,1, RED },
+        {{ 650, 100, 100, 10 }, 1,1, RED }
     };
   
 
@@ -51,17 +52,19 @@ void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *e
 void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void InitGame(void);
+void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength);
+
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
-    
+    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
     InitGame();
     
 
     
-    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+    
 
     Camera2D camera = { 0 };
     camera.target = player.position;
@@ -99,7 +102,7 @@ int main(void)
         float deltaTime = GetFrameTime();
         if(!isGameOver){
             UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
-
+            UpdateStage(&player, envItems, envItemsLength);
             camera.zoom += ((float)GetMouseWheelMove()*0.05f);
             
             if (camera.zoom > 3.0f) camera.zoom = 3.0f;
@@ -116,7 +119,7 @@ int main(void)
            // camera->offset = (Vector2){ width/2, height/2 };
             if (IsKeyPressed(KEY_ENTER))
             {
-                //InitGame(); 
+                InitGame(); 
                 isGameOver = false;
             }
         }
@@ -125,7 +128,7 @@ int main(void)
        // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
 
         // Call update camera function by its pointer
-        cameraUpdaters[0](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight); // 1 : clamp to map edge
+        cameraUpdaters[3](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight); // 1 : clamp to map edge
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -136,11 +139,14 @@ int main(void)
             if(!isGameOver){
                 BeginMode2D(camera);
            
-                for (int i = 0; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
+                for (int i = 0; i < envItemsLength; i++) {
+                    DrawRectangleRec(envItems[i].rect, envItems[i].color);
+                   // if envItems[i]
+                }
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
                 DrawRectangleRec(playerRect, RED);
-               
+                
                 EndMode2D();
 
                 DrawText("Controls:", 20, 20, 10, BLACK);
@@ -192,7 +198,8 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
             ei->rect.x <= p->x && 
             ei->rect.x + ei->rect.width >= p->x &&
             ei->rect.y >= p->y &&
-            ei->rect.y < p->y + player->speed*delta) 
+            ei->rect.y < p->y + player->speed*delta &&
+            ei->actif)
         {
             hitObstacle = 1;
             player->speed = 0.0f;
@@ -314,9 +321,17 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
 }
 void InitGame(){
-        player.position = (Vector2){ 400, 280 };
+    player.position = (Vector2){ 350, 200 };
     player.speed = 0;
     player.canJump = false;
     player.timeSinceJump = GetTime();
 
+
+}
+void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength){
+    for(int i =1; i<envItemsLength; i++){
+        if (envItems[i].rect.y  > player->position.y+screenHeight/2){
+            envItems[i].actif = 0 ;
+        }
+    }
 }
