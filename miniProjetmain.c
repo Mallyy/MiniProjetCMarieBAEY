@@ -9,7 +9,8 @@ typedef struct Player {
     Vector2 position;
     float speed;
     bool canJump;
-    
+    double timeSinceJump;
+
 } Player;
 
 typedef struct EnvItem {
@@ -18,6 +19,11 @@ typedef struct EnvItem {
     Color color;
 } EnvItem;
 
+//-----------------------------------
+//Global Variable
+//-----------------------
+static bool isGameOver =false;
+
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -25,56 +31,14 @@ void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player, EnvItem *envI
 void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
-
+void gameOverWindows(void);
 
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-    
-    InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
 
-    Player player = { 0 };
-    player.position = (Vector2){ 400, 280 };
-    player.speed = 0;
-    player.canJump = false;
-    EnvItem envItems[] = {
-        {{ 0, 0, 1000, 400 }, 0, LIGHTGRAY }, //bacground ?
-        {{ 0, 400, 1000, 200 }, 1, GRAY },
-        {{ 300, 200, 400, 10 }, 1, GRAY },
-        {{ 250, 300, 100, 10 }, 1, GRAY },
-        {{ 650, 300, 100, 10 }, 1, GRAY }
-    };
-    
-    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
 
-    Camera2D camera = { 0 };
-    camera.target = player.position;
-    camera.offset = (Vector2){ screenWidth/2, screenHeight/2 };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
-
-    // Store pointers to the multiple update camera functions
-    void (*cameraUpdaters[])(Camera2D*, Player*, EnvItem*, int, float, int, int) = {
-        UpdateCameraCenter,
-        UpdateCameraCenterInsideMap,
-        UpdateCameraCenterSmoothFollow,
-        UpdateCameraEvenOutOnLanding,
-        UpdateCameraPlayerBoundsPush
-    };
-    
-    int cameraOption = 0;
-    int cameraUpdatersLength = sizeof(cameraUpdaters)/sizeof(cameraUpdaters[0]);
-    
-    char *cameraDescriptions[] = {
-        "Follow player center",
-        "Follow player center, but clamp to map edges",
-        "Follow player center; smoothed",
-        "Follow player center horizontally; updateplayer center vertically after landing",
-        "Player push camera on getting too close to screen edge"
-    };
     
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -98,11 +62,15 @@ int main(void)
             camera.zoom = 1.0f;
             player.position = (Vector2){ 400, 280 };
         }
+        if(isGameOver==true){
+            printf("GAME OVER");
+            DrawText("GAME OVER", 190, 200, 20, LIGHTGRAY);
+        }
 
-        if (IsKeyPressed(KEY_C)) cameraOption = (cameraOption + 1)%cameraUpdatersLength;
+       // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
 
         // Call update camera function by its pointer
-        cameraUpdaters[cameraOption](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight);
+        cameraUpdaters[0](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight); // 1 : clamp to map edge
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -147,7 +115,12 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
     if (player->canJump) 
     {
         player->speed = -PLAYER_JUMP_SPD;
+        player->timeSinceJump = GetTime();
         player->canJump = false;
+    }
+    if(GetTime() - player->timeSinceJump > 5){
+        isGameOver=true;
+       // printf("ligne 167");
     }
 
     int hitObstacle = 0;
@@ -172,9 +145,51 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         player->position.y += player->speed*delta;
         player->speed += G*delta;
         player->canJump = false;
+        
     } 
-    else player->canJump = true;
+    else{ player->canJump = true;}
+   
 }
+
+void gameOverWindows(void)
+{
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    const int screenWidth = 800;
+    const int screenHeight = 450;
+
+    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
+
+    // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // Update
+        //----------------------------------------------------------------------------------
+        // TODO: Update your variables here
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+
+            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    CloseWindow();        // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+}
+
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height)
 {
@@ -277,4 +292,58 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.y < bboxWorldMin.y) camera->target.y = player->position.y;
     if (player->position.x > bboxWorldMax.x) camera->target.x = bboxWorldMin.x + (player->position.x - bboxWorldMax.x);
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
+}
+void InitGame(){
+        const int screenWidth = 800;
+    const int screenHeight = 450;
+    
+    InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
+
+    Player player = { 0 };
+    player.position = (Vector2){ 400, 280 };
+    player.speed = 0;
+    player.canJump = false;
+
+    player.timeSinceJump = GetTime();
+    EnvItem envItems[] = {
+        {{ 0, -400, 1000, 800 }, 0, YELLOW }, //bacground ?
+        {{ 0, 400, 1000, 200 }, 1, GRAY },
+        {{ 300, 200, 400, 10 }, 1, BLACK },
+        {{ 250, 300, 100, 10 }, 1, BLUE },
+        {{ 650, 300, 100, 10 }, 1, GREEN },
+        {{ 650, -400, 100, 10 }, 1, RED },
+        {{ 650, -300, 100, 10 }, 1, RED },
+        {{ 650, -200, 100, 10 }, 1, RED },
+        {{ 650, -100, 100, 10 }, 1, RED },
+        {{ 650, 0, 100, 10 }, 1, RED },
+        {{ 650, 100, 100, 10 }, 1, RED }
+    };
+    
+    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+
+    Camera2D camera = { 0 };
+    camera.target = player.position;
+    camera.offset = (Vector2){ screenWidth/2, screenHeight/2 };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+    // Store pointers to the multiple update camera functions
+    void (*cameraUpdaters[])(Camera2D*, Player*, EnvItem*, int, float, int, int) = {
+        UpdateCameraCenter,
+        UpdateCameraCenterInsideMap,
+        UpdateCameraCenterSmoothFollow,
+        UpdateCameraEvenOutOnLanding,
+        UpdateCameraPlayerBoundsPush
+    };
+    
+    int cameraOption = 0;
+    int cameraUpdatersLength = sizeof(cameraUpdaters)/sizeof(cameraUpdaters[0]);
+    
+    char *cameraDescriptions[] = {
+        "Follow player center",
+        "Follow player center, but clamp to map edges",
+        "Follow player center; smoothed",
+        "Follow player center horizontally; updateplayer center vertically after landing",
+        "Player push camera on getting too close to screen edge"
+    };
 }
