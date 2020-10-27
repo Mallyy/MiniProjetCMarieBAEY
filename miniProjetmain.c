@@ -24,22 +24,70 @@ typedef struct EnvItem {
 //-----------------------
 static bool isGameOver =false;
 
+static Player player = { 0 };
+static EnvItem envItems[] = {
+        {{ 0, -400, 1000, 800 }, 0, YELLOW }, //bacground ?
+        {{ 0, 400, 1000, 200 }, 1, GRAY },
+        {{ 300, 200, 400, 10 }, 1, BLACK },
+        {{ 250, 300, 100, 10 }, 1, BLUE },
+        {{ 650, 300, 100, 10 }, 1, GREEN },
+        {{ 650, -400, 100, 10 }, 1, RED },
+        {{ 650, -300, 100, 10 }, 1, RED },
+        {{ 650, -200, 100, 10 }, 1, RED },
+        {{ 650, -100, 100, 10 }, 1, RED },
+        {{ 650, 0, 100, 10 }, 1, RED },
+        {{ 650, 100, 100, 10 }, 1, RED }
+    };
+  
+
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
+static int screenWidth = 800;
+static int screenHeight = 450;
+
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
-void gameOverWindows(void);
-
+void InitGame(void);
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-
+    InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
+    
+    InitGame();
+    
 
     
+    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+
+    Camera2D camera = { 0 };
+    camera.target = player.position;
+    camera.offset = (Vector2){ screenWidth/2, screenHeight/2 };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+    // Store pointers to the multiple update camera functions
+    void (*cameraUpdaters[])(Camera2D*, Player*, EnvItem*, int, float, int, int) = {
+        UpdateCameraCenter,
+        UpdateCameraCenterInsideMap,
+        UpdateCameraCenterSmoothFollow,
+        UpdateCameraEvenOutOnLanding,
+        UpdateCameraPlayerBoundsPush
+    };
+    
+    int cameraOption = 0;
+    int cameraUpdatersLength = sizeof(cameraUpdaters)/sizeof(cameraUpdaters[0]);
+    
+    char *cameraDescriptions[] = {
+        "Follow player center",
+        "Follow player center, but clamp to map edges",
+        "Follow player center; smoothed",
+        "Follow player center horizontally; updateplayer center vertically after landing",
+        "Player push camera on getting too close to screen edge"
+    };
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
@@ -49,23 +97,30 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
         float deltaTime = GetFrameTime();
-        
-        UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
+        if(!isGameOver){
+            UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
 
-        camera.zoom += ((float)GetMouseWheelMove()*0.05f);
-        
-        if (camera.zoom > 3.0f) camera.zoom = 3.0f;
-        else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
-        
-        if (IsKeyPressed(KEY_R)) 
-        {
-            camera.zoom = 1.0f;
-            player.position = (Vector2){ 400, 280 };
+            camera.zoom += ((float)GetMouseWheelMove()*0.05f);
+            
+            if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+            else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
+            
+            if (IsKeyPressed(KEY_R)) 
+            {
+                camera.zoom = 1.0f;
+                player.position = (Vector2){ 400, 280 };
+            }
+
         }
-        if(isGameOver==true){
-            printf("GAME OVER");
-            DrawText("GAME OVER", 190, 200, 20, LIGHTGRAY);
+        else {
+           // camera->offset = (Vector2){ width/2, height/2 };
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                //InitGame(); 
+                isGameOver = false;
+            }
         }
+
 
        // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
 
@@ -78,23 +133,28 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(LIGHTGRAY);
-
-            BeginMode2D(camera);
+            if(!isGameOver){
+                BeginMode2D(camera);
            
                 for (int i = 0; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
                 DrawRectangleRec(playerRect, RED);
                
-            EndMode2D();
+                EndMode2D();
 
-            DrawText("Controls:", 20, 20, 10, BLACK);
-            DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
-            DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
-            DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
-            DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
-            DrawText("Current camera mode:", 20, 120, 10, BLACK);
-            DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
+                DrawText("Controls:", 20, 20, 10, BLACK);
+                DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
+                DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
+                DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
+                DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
+                DrawText("Current camera mode:", 20, 120, 10, BLACK);
+                DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
+                }
+            else {
+                DrawText ("GAME OVER",20, 120, 50, BLACK);
+            }
+
             
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -150,46 +210,6 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
     else{ player->canJump = true;}
    
 }
-
-void gameOverWindows(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-}
-
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height)
 {
@@ -294,56 +314,9 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
 }
 void InitGame(){
-        const int screenWidth = 800;
-    const int screenHeight = 450;
-    
-    InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
-
-    Player player = { 0 };
-    player.position = (Vector2){ 400, 280 };
+        player.position = (Vector2){ 400, 280 };
     player.speed = 0;
     player.canJump = false;
-
     player.timeSinceJump = GetTime();
-    EnvItem envItems[] = {
-        {{ 0, -400, 1000, 800 }, 0, YELLOW }, //bacground ?
-        {{ 0, 400, 1000, 200 }, 1, GRAY },
-        {{ 300, 200, 400, 10 }, 1, BLACK },
-        {{ 250, 300, 100, 10 }, 1, BLUE },
-        {{ 650, 300, 100, 10 }, 1, GREEN },
-        {{ 650, -400, 100, 10 }, 1, RED },
-        {{ 650, -300, 100, 10 }, 1, RED },
-        {{ 650, -200, 100, 10 }, 1, RED },
-        {{ 650, -100, 100, 10 }, 1, RED },
-        {{ 650, 0, 100, 10 }, 1, RED },
-        {{ 650, 100, 100, 10 }, 1, RED }
-    };
-    
-    int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
 
-    Camera2D camera = { 0 };
-    camera.target = player.position;
-    camera.offset = (Vector2){ screenWidth/2, screenHeight/2 };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
-
-    // Store pointers to the multiple update camera functions
-    void (*cameraUpdaters[])(Camera2D*, Player*, EnvItem*, int, float, int, int) = {
-        UpdateCameraCenter,
-        UpdateCameraCenterInsideMap,
-        UpdateCameraCenterSmoothFollow,
-        UpdateCameraEvenOutOnLanding,
-        UpdateCameraPlayerBoundsPush
-    };
-    
-    int cameraOption = 0;
-    int cameraUpdatersLength = sizeof(cameraUpdaters)/sizeof(cameraUpdaters[0]);
-    
-    char *cameraDescriptions[] = {
-        "Follow player center",
-        "Follow player center, but clamp to map edges",
-        "Follow player center; smoothed",
-        "Follow player center horizontally; updateplayer center vertically after landing",
-        "Player push camera on getting too close to screen edge"
-    };
 }
