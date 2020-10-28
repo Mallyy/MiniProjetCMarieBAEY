@@ -37,7 +37,7 @@ static EnvItem envItems[] = {
         {{ 600, 900, 100, 10 }, 1,1, GREEN },  
         {{ 400, 880, 100, 10 }, 1,1, GREEN },       
         {{ 700, 840, 100, 10 }, 1,1, GREEN }, 
-        {{ 20, 800, 100, 10 }, 1,1, BLUE }, 
+        {{ 20, 800, 100, 10 }, 1,1, GREEN }, 
         {{ 640, 750, 100, 10 }, 1,1, GREEN },
         {{ 700, 750, 100, 10 }, 1,1, GREEN },
         {{ 150, 700, 100, 10 }, 1,1, GREEN },
@@ -51,12 +51,51 @@ static EnvItem envItems[] = {
         {{ 650, 520, 100, 10 }, 1,1, GREEN },
         {{ 580, 450, 100, 10 }, 1,1, GREEN },
         {{ 650, 300, 100, 10 }, 1,1, GREEN },
+        {{ 50, 300, 100, 10 }, 1,1, GREEN },
+        {{ 300, 250, 100, 10 }, 1,1, GREEN },
+        {{ 30, 230, 100, 10 }, 1,1, GREEN },
+        {{ 650, 180, 100, 10 }, 1,1, GREEN },
+        {{ 350, 140, 100, 10 }, 1,1, GREEN },
+        {{ 700, 90, 100, 10 }, 1,1, GREEN },
+        {{ 50, 30, 100, 10 }, 1,1, GREEN },
+        {{ 340, 0, 100, 10 }, 1,1, GREEN },
+        {{ 550, 100, 100, 10 }, 1,1, GREEN },
         {{ 650, -400, 100, 10 }, 1,1, GREEN },
         {{ 650, -300, 100, 10 }, 1,1, GREEN },
         {{ 650, -200, 100, 10 }, 1,1, GREEN },
-        {{ 650, -1000, 100, 10 }, 1,1 ,GREEN },
         {{ 650, 0, 100, 10 }, 1,1, GREEN },
-        {{ 650, 100, 100, 10 }, 1,1, GREEN }
+        {{ 300, -200, 100, 10 }, 1,1, GREEN }, 
+        {{ 300, -900, 100, 10 }, 1,1, GREEN }, 
+        {{ 250, -300, 100, 10 }, 1,1, GREEN },
+        {{ 200, -950, 100, 10 }, 1,1, GREEN }, 
+        {{ 50, -950, 100, 10 }, 1,1, GREEN },
+        {{ 600, -900, 100, 10 }, 1,1, GREEN },  
+        {{ 400, -880, 100, 10 }, 1,1, GREEN },       
+        {{ 700, -840, 100, 10 }, 1,1, GREEN }, 
+        {{ 20, -800, 100, 10 }, 1,1, GREEN }, 
+        {{ 640,-750, 100, 10 }, 1,1, GREEN },
+        {{ 700, -750, 100, 10 }, 1,1, GREEN },
+        {{ 150, -700, 100, 10 }, 1,1, GREEN },
+        {{ 300, -650, 100, 10 }, 1,1, GREEN },
+        {{ 500, -650, 100, 10 }, 1,1, GREEN },
+        {{ 330, -610, 100, 10 }, 1,1, GREEN },
+        {{ 600, -770, 100, 10 }, 1,1, GREEN },
+        {{ 10, -640, 100, 10 }, 1,1, GREEN },
+        {{ 600, -600, 100, 10 }, 1,1, GREEN },
+        {{ 250, -570, 100, 10 }, 1,1, GREEN },
+        {{ 650, -520, 100, 10 }, 1,1, GREEN },
+        {{ 580, -450, 100, 10 }, 1,1, GREEN },
+        {{ 650, -300, 100, 10 }, 1,1, GREEN },
+        {{ 50, -300, 100, 10 }, 1,1, GREEN },
+        {{ 300, -250, 100, 10 }, 1,1, GREEN },
+        {{ 30, -230, 100, 10 }, 1,1, GREEN },
+        {{ 650, -180, 100, 10 }, 1,1, GREEN },
+        {{ 350, -140, 100, 10 }, 1,1, GREEN },
+        {{ 700, -90, 100, 10 }, 1,1, GREEN },
+        {{ 50, -30, 100, 10 }, 1,1, GREEN },
+        {{ 340, 0, 100, 10 }, 1,1, GREEN },
+        {{ 650, 100, 100, 10 }, 1,1, GREEN },
+        {{ 650, -1000, 100, 10 }, 1,1 ,ORANGE}
     };
   
 
@@ -64,6 +103,7 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 static int screenWidth = 800;
 static int screenHeight = 1000;
 static bool inGame = false;
+static  Sound fxWav;
 
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -81,6 +121,10 @@ int main(void)
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+            // Load WAV audio file
+    InitAudioDevice(); 
+    fxWav = LoadSound("ressource/collision.wav");
+    
     DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
 //    if()
     InitGame();
@@ -201,14 +245,18 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
+     UnloadSound(fxWav);     // Unload sound data
+    // Unload sound data
+    CloseAudioDevice();
+    CloseWindow();      // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
 }
 
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
-{
+{   
+   
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
     if (player->canJump) 
@@ -216,6 +264,7 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         player->speed = -PLAYER_JUMP_SPD;
         player->timeSinceJump = GetTime();
         player->canJump = false;
+        PlaySound(fxWav);
     }
     if(GetTime() - player->timeSinceJump > 5){
         isGameOver=true;
@@ -366,11 +415,16 @@ void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength){
     for(int i =1; i<envItemsLength; i++){
         if (envItems[i].rect.y  > player->position.y+screenHeight/2+50){
             envItems[i].actif = 0 ;
+            envItems[i].color = DARKBROWN;
         }
     }
 }
 void ReInitStage(EnvItem *envItems, int envItemsLength){
     for(int i =0; i<envItemsLength; i++){    
             envItems[i].actif = 1 ;
+            if (i>1) envItems[i].color = GREEN;
+            
     }
+    envItems[1].color = GRAY ;
+    envItems[envItemsLength-1].color= ORANGE;
 }
