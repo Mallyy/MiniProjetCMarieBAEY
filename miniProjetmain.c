@@ -3,7 +3,7 @@
 
 #define G 400
 #define PLAYER_JUMP_SPD 350.f
-#define PLAYER_HOR_SPD 200.f
+#define PLAYER_HOR_SPD 500.f
 
 typedef struct Player {
     Vector2 position;
@@ -27,23 +27,42 @@ static bool isGameOver =false;
 
 static Player player = { 0 };
 static EnvItem envItems[] = {
-        {{ 0, -200, 1000, 800 }, 0,1, YELLOW }, // rect  { x,y,width,height}
-        {{ 0, 400, 1000, 200 }, 1,1, GRAY },
-        {{ 300, 200, 400, 10 }, 1,1, BLACK },
-        {{ 250, 300, 100, 10 }, 1,1, BLUE },
+        {{ 0, -1000, 850, 2000 }, 0,1, DARKBROWN }, // rect  { x,y,width,height} // background
+        {{ 0, 1000, 850, 400 }, 1,1, GRAY }, // platforme initiale
+        {{ 300, 200, 100, 10 }, 1,1, GREEN }, 
+        {{ 300, 900, 100, 10 }, 1,1, GREEN }, 
+        {{ 250, 300, 100, 10 }, 1,1, GREEN },
+        {{ 200, 950, 100, 10 }, 1,1, GREEN }, 
+        {{ 50, 950, 100, 10 }, 1,1, GREEN },
+        {{ 600, 900, 100, 10 }, 1,1, GREEN },  
+        {{ 400, 880, 100, 10 }, 1,1, GREEN },       
+        {{ 700, 840, 100, 10 }, 1,1, GREEN }, 
+        {{ 20, 800, 100, 10 }, 1,1, BLUE }, 
+        {{ 640, 750, 100, 10 }, 1,1, GREEN },
+        {{ 700, 750, 100, 10 }, 1,1, GREEN },
+        {{ 150, 700, 100, 10 }, 1,1, GREEN },
+        {{ 300, 650, 100, 10 }, 1,1, GREEN },
+        {{ 500, 650, 100, 10 }, 1,1, GREEN },
+        {{ 330, 610, 100, 10 }, 1,1, GREEN },
+        {{ 600, 770, 100, 10 }, 1,1, GREEN },
+        {{ 10, 640, 100, 10 }, 1,1, GREEN },
+        {{ 600, 600, 100, 10 }, 1,1, GREEN },
+        {{ 250, 570, 100, 10 }, 1,1, GREEN },
+        {{ 650, 520, 100, 10 }, 1,1, GREEN },
+        {{ 580, 450, 100, 10 }, 1,1, GREEN },
         {{ 650, 300, 100, 10 }, 1,1, GREEN },
-        {{ 650, -400, 100, 10 }, 1,1, RED },
-        {{ 650, -300, 100, 10 }, 1,1, RED },
-        {{ 650, -200, 100, 10 }, 1,1, RED },
-        {{ 650, -100, 100, 10 }, 1,1 ,RED },
-        {{ 650, 0, 100, 10 }, 1,1, RED },
-        {{ 650, 100, 100, 10 }, 1,1, RED }
+        {{ 650, -400, 100, 10 }, 1,1, GREEN },
+        {{ 650, -300, 100, 10 }, 1,1, GREEN },
+        {{ 650, -200, 100, 10 }, 1,1, GREEN },
+        {{ 650, -1000, 100, 10 }, 1,1 ,GREEN },
+        {{ 650, 0, 100, 10 }, 1,1, GREEN },
+        {{ 650, 100, 100, 10 }, 1,1, GREEN }
     };
   
 
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 static int screenWidth = 800;
-static int screenHeight = 450;
+static int screenHeight = 1000;
 static bool inGame = false;
 
 
@@ -54,6 +73,7 @@ void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player, EnvItem *env
 void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void InitGame(void);
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength);
+void ReInitStage(EnvItem *envItems, int envItemsLength);
 
 int main(void)
 {
@@ -116,12 +136,13 @@ int main(void)
                 }
 
             }
-            else if (!isGameOver && inGame) {
+            else if (isGameOver && inGame) {
                // camera->offset = (Vector2){ width/2, height/2 };
                 if (IsKeyPressed(KEY_ENTER))
                 {
                     InitGame(); 
                     isGameOver = false;
+                    ReInitStage(envItems, envItemsLength);
                 }
             }
         }
@@ -137,7 +158,7 @@ int main(void)
        // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
 
         // Call update camera function by its pointer
-        cameraUpdaters[3](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight); // 1 : clamp to map edge
+        cameraUpdaters[1](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight); // 1 : clamp to map edge
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -333,7 +354,8 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
 }
 void InitGame(){
-    player.position = (Vector2){ 400, 280 };
+    
+    player.position = (Vector2){ 350, 800 };
     player.speed = 0;
     player.canJump = false;
     player.timeSinceJump = GetTime();
@@ -342,8 +364,13 @@ void InitGame(){
 }
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength){
     for(int i =1; i<envItemsLength; i++){
-        if (envItems[i].rect.y  > player->position.y+screenHeight/2){
+        if (envItems[i].rect.y  > player->position.y+screenHeight/2+50){
             envItems[i].actif = 0 ;
         }
+    }
+}
+void ReInitStage(EnvItem *envItems, int envItemsLength){
+    for(int i =0; i<envItemsLength; i++){    
+            envItems[i].actif = 1 ;
     }
 }
