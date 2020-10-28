@@ -27,7 +27,7 @@ static bool isGameOver =false;
 
 static Player player = { 0 };
 static EnvItem envItems[] = {
-        {{ 0, -400, 1000, 800 }, 0,1, YELLOW }, // rect. / color/
+        {{ 0, -200, 1000, 800 }, 0,1, YELLOW }, // rect  { x,y,width,height}
         {{ 0, 400, 1000, 200 }, 1,1, GRAY },
         {{ 300, 200, 400, 10 }, 1,1, BLACK },
         {{ 250, 300, 100, 10 }, 1,1, BLUE },
@@ -44,6 +44,7 @@ static EnvItem envItems[] = {
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 static int screenWidth = 800;
 static int screenHeight = 450;
+static bool inGame = false;
 
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -60,12 +61,11 @@ int main(void)
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+    DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
+//    if()
     InitGame();
-    
-
-    
-    
-
+    //Initialisation camera 
+    //---------------------------------------------------------------------------------------
     Camera2D camera = { 0 };
     camera.target = player.position;
     camera.offset = (Vector2){ screenWidth/2, screenHeight/2 };
@@ -100,29 +100,38 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
         float deltaTime = GetFrameTime();
-        if(!isGameOver){
-            UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
-            UpdateStage(&player, envItems, envItemsLength);
-            camera.zoom += ((float)GetMouseWheelMove()*0.05f);
-            
-            if (camera.zoom > 3.0f) camera.zoom = 3.0f;
-            else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
-            
-            if (IsKeyPressed(KEY_R)) 
-            {
-                camera.zoom = 1.0f;
-                player.position = (Vector2){ 400, 280 };
-            }
+        if(inGame){
+            if(!isGameOver && inGame){
+                UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
+                UpdateStage(&player, envItems, envItemsLength);
+                camera.zoom += ((float)GetMouseWheelMove()*0.05f);
+                
+                if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+                else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
+                
+                if (IsKeyPressed(KEY_R)) 
+                {
+                    camera.zoom = 1.0f;
+                    player.position = (Vector2){ 400, 280 };
+                }
 
-        }
-        else {
-           // camera->offset = (Vector2){ width/2, height/2 };
-            if (IsKeyPressed(KEY_ENTER))
-            {
-                InitGame(); 
-                isGameOver = false;
+            }
+            else if (!isGameOver && inGame) {
+               // camera->offset = (Vector2){ width/2, height/2 };
+                if (IsKeyPressed(KEY_ENTER))
+                {
+                    InitGame(); 
+                    isGameOver = false;
+                }
             }
         }
+        else{
+            if(IsKeyPressed(KEY_ENTER)){
+                inGame = true;
+            }
+        }
+
+       
 
 
        // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
@@ -136,7 +145,7 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(LIGHTGRAY);
-            if(!isGameOver){
+            if(!isGameOver && inGame){
                 BeginMode2D(camera);
            
                 for (int i = 0; i < envItemsLength; i++) {
@@ -157,8 +166,11 @@ int main(void)
                 DrawText("Current camera mode:", 20, 120, 10, BLACK);
                 DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
                 }
-            else {
+            else if (isGameOver==true) {
                 DrawText ("GAME OVER",20, 120, 50, BLACK);
+            }
+            else if (inGame == false ) {
+                DrawText("press enter to start ", 20, 120, 10, BLACK);
             }
 
             
@@ -321,7 +333,7 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
 }
 void InitGame(){
-    player.position = (Vector2){ 350, 200 };
+    player.position = (Vector2){ 400, 280 };
     player.speed = 0;
     player.canJump = false;
     player.timeSinceJump = GetTime();
