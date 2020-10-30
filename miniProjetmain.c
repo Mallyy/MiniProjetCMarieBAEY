@@ -17,7 +17,6 @@ typedef struct EnvItem {
     int blocking;
     int actif;
     Color color;
-    int lastTile;
 } EnvItem;
 
 //-----------------------------------
@@ -28,84 +27,86 @@ static int screenHeight = 1000;
 
 static Player player = { 0 };
 static EnvItem envItems[] = {
-        {{ 0, -1000, 800, 2000 }, 0,1, DARKBROWN,0 }, // rect  { x,y,width,height} // background
-        {{ 0, 1000, 800, 400 }, 1,1, GRAY,1 },       // platforme initiale
-        {{ 300, 200, 100, 10 }, 1,1, GREEN,0}, 
-        {{ 300, 900, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 250, 300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 200, 950, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 50, 950, 100, 10 }, 1,1, GREEN ,0},
-        {{ 600, 900, 100, 10 }, 1,1, GREEN,0 },  
-        {{ 400, 880, 100, 10 }, 1,1, GREEN,0 },       
-        {{ 700, 840, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 20, 800, 100, 10 }, 1,1, GREEN ,0}, 
-        {{ 640, 750, 100, 10 }, 1,1, GREEN,0 },
-        {{ 700, 750, 100, 10 }, 1,1, GREEN,0 },
-        {{ 150, 700, 100, 10 }, 1,1, GREEN,0 },
-        {{ 300, 650, 100, 10 }, 1,1, GREEN,0 },
-        {{ 500, 650, 100, 10 }, 1,1, GREEN,0 },
-        {{ 330, 610, 100, 10 }, 1,1, GREEN,0 },
-        {{ 600, 770, 100, 10 }, 1,1, GREEN,0 },
-        {{ 10, 640, 100, 10 }, 1,1, GREEN,0 },
-        {{ 600, 600, 100, 10 }, 1,1, GREEN,0 },
-        {{ 250, 570, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, 520, 100, 10 }, 1,1, GREEN,0 },
-        {{ 580, 450, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, 300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 50, 300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 300, 250, 100, 10 }, 1,1, GREEN,0 },
-        {{ 30, 230, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, 180, 100, 10 }, 1,1, GREEN,0 },
-        {{ 350, 140, 100, 10 }, 1,1, GREEN,0 },
-        {{ 700, 90, 100, 10 }, 1,1, GREEN,0 },
-        {{ 50, 30, 100, 10 }, 1,1, GREEN,0 },
-        {{ 340, 0, 100, 10 }, 1,1, GREEN,0 },
-        {{ 550, 100, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, -400, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, -300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, -200, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, 0, 100, 10 }, 1,1, GREEN,0 },
-        {{ 300, -200, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 300, -900, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 250, -300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 200, -950, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 50, -950, 100, 10 }, 1,1, GREEN,0 },
-        {{ 600, -900, 100, 10 }, 1,1, GREEN ,0},  
-        {{ 400, -880, 100, 10 }, 1,1, GREEN,0 },       
-        {{ 700, -840, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 20, -800, 100, 10 }, 1,1, GREEN,0 }, 
-        {{ 640,-750, 100, 10 }, 1,1, GREEN,0 },
-        {{ 700, -750, 100, 10 }, 1,1, GREEN,0 },
-        {{ 150, -700, 100, 10 }, 1,1, GREEN,0 },
-        {{ 300, -650, 100, 10 }, 1,1, GREEN,0 },
-        {{ 500, -650, 100, 10 }, 1,1, GREEN,0 },
-        {{ 330, -610, 100, 10 }, 1,1, GREEN,0 },
-        {{ 600, -770, 100, 10 }, 1,1, GREEN,0 },
-        {{ 10, -640, 100, 10 }, 1,1, GREEN,0 },
-        {{ 600, -600, 100, 10 }, 1,1, GREEN,0 },
-        {{ 250, -570, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, -520, 100, 10 }, 1,1, GREEN,0 },
-        {{ 580, -450, 100, 10 }, 1,1, GREEN,0 },
-        {{ 650, -300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 50, -300, 100, 10 }, 1,1, GREEN,0 },
-        {{ 300, -250, 100, 10 }, 1,1, GREEN ,0},
-        {{ 30, -230, 100, 10 }, 1,1, GREEN ,0},
-        {{ 650, -180, 100, 10 }, 1,1, GREEN ,0},
-        {{ 350, -140, 100, 10 }, 1,1, GREEN ,0},
-        {{ 700, -90, 100, 10 }, 1,1, GREEN ,0},
-        {{ 50, -30, 100, 10 }, 1,1, GREEN ,0},
-        {{ 340, 0, 100, 10 }, 1,1, GREEN ,0},
-        {{ 650, 100, 100, 10 }, 1,1, GREEN ,0},
-        {{ 650, -1000, 100, 10 }, 1,1 ,GREEN,1},        
-        {{ 0, -950, 800, 10 }, 0,1, RED,1 }
+        {{ 0, -1000, 800, 2000 }, 0,1, DARKBROWN }, // rect  { x,y,width,height} // background
+        {{ 0, 1000, 800, 400 }, 1,1, GRAY},       // platforme initiale
+        {{ 300, 200, 100, 10 }, 1,1, GREEN}, 
+        {{ 300, 900, 100, 10 }, 1,1, GREEN}, 
+        {{ 250, 300, 100, 10 }, 1,1, GREEN},
+        {{ 200, 950, 100, 10 }, 1,1, GREEN}, 
+        {{ 50, 950, 100, 10 }, 1,1, GREEN},
+        {{ 600, 900, 100, 10 }, 1,1, GREEN},  
+        {{ 400, 880, 100, 10 }, 1,1, GREEN},       
+        {{ 700, 840, 100, 10 }, 1,1, GREEN}, 
+        {{ 20, 800, 100, 10 }, 1,1, GREEN}, 
+        {{ 640, 750, 100, 10 }, 1,1, GREEN},
+        {{ 700, 750, 100, 10 }, 1,1, GREEN},
+        {{ 150, 700, 100, 10 }, 1,1, GREEN},
+        {{ 300, 650, 100, 10 }, 1,1, GREEN},
+        {{ 500, 650, 100, 10 }, 1,1, GREEN},
+        {{ 330, 610, 100, 10 }, 1,1, GREEN},
+        {{ 600, 770, 100, 10 }, 1,1, GREEN},
+        {{ 10, 640, 100, 10 }, 1,1, GREEN},
+        {{ 600, 600, 100, 10 }, 1,1, GREEN},
+        {{ 250, 570, 100, 10 }, 1,1, GREEN},
+        {{ 650, 520, 100, 10 }, 1,1, GREEN},
+        {{ 580, 450, 100, 10 }, 1,1, GREEN},
+        {{ 650, 300, 100, 10 }, 1,1, GREEN},
+        {{ 50, 300, 100, 10 }, 1,1, GREEN},
+        {{ 300, 250, 100, 10 }, 1,1, GREEN},
+        {{ 30, 230, 100, 10 }, 1,1, GREEN},
+        {{ 650, 180, 100, 10 }, 1,1, GREEN},
+        {{ 350, 140, 100, 10 }, 1,1, GREEN},
+        {{ 700, 90, 100, 10 }, 1,1, GREEN},
+        {{ 50, 30, 100, 10 }, 1,1, GREEN},
+        {{ 340, 0, 100, 10 }, 1,1, GREEN},
+        {{ 550, 100, 100, 10 }, 1,1, GREEN},
+        {{ 650, -400, 100, 10 }, 1,1, GREEN},
+        {{ 650, -300, 100, 10 }, 1,1, GREEN},
+        {{ 650, -200, 100, 10 }, 1,1, GREEN},
+        {{ 650, 0, 100, 10 }, 1,1, GREEN},
+        {{ 300, -200, 100, 10 }, 1,1, GREEN}, 
+        {{ 300, -900, 100, 10 }, 1,1, GREEN}, 
+        {{ 250, -300, 100, 10 }, 1,1, GREEN},
+        {{ 200, -950, 100, 10 }, 1,1, GREEN}, 
+        {{ 50, -950, 100, 10 }, 1,1, GREEN},
+        {{ 600, -900, 100, 10 }, 1,1, GREEN},  
+        {{ 400, -880, 100, 10 }, 1,1, GREEN},       
+        {{ 700, -840, 100, 10 }, 1,1, GREEN}, 
+        {{ 20, -800, 100, 10 }, 1,1, GREEN}, 
+        {{ 640,-750, 100, 10 }, 1,1, GREEN},
+        {{ 700, -750, 100, 10 }, 1,1, GREEN},
+        {{ 150, -700, 100, 10 }, 1,1, GREEN },
+        {{ 300, -650, 100, 10 }, 1,1, GREEN },
+        {{ 500, -650, 100, 10 }, 1,1, GREEN },
+        {{ 330, -610, 100, 10 }, 1,1, GREEN },
+        {{ 600, -770, 100, 10 }, 1,1, GREEN },
+        {{ 10, -640, 100, 10 }, 1,1, GREEN },
+        {{ 600, -600, 100, 10 }, 1,1, GREEN },
+        {{ 250, -570, 100, 10 }, 1,1, GREEN },
+        {{ 650, -520, 100, 10 }, 1,1, GREEN},
+        {{ 580, -450, 100, 10 }, 1,1, GREEN },
+        {{ 650, -300, 100, 10 }, 1,1, GREEN},
+        {{ 50, -300, 100, 10 }, 1,1, GREEN},
+        {{ 300, -250, 100, 10 }, 1,1, GREEN},
+        {{ 30, -230, 100, 10 }, 1,1, GREEN },
+        {{ 650, -180, 100, 10 }, 1,1, GREEN},
+        {{ 350, -140, 100, 10 }, 1,1, GREEN},
+        {{ 700, -90, 100, 10 }, 1,1, GREEN},
+        {{ 50, -30, 100, 10 }, 1,1, GREEN },
+        {{ 340, 0, 100, 10 }, 1,1, GREEN },
+        {{ 650, 100, 100, 10 }, 1,1, GREEN },
+        {{ 650, -1000, 100, 10 }, 1,1 ,GREEN},        
+        {{ 0, -950, 800, 10 }, 0,1, RED}
     };
   
 
 static bool isGameOver =false;
 static bool inGame = false;
+static bool inSkin = false;
 static bool isStageWOn = false;
 static int score = 0;
 static double startTime;
+static Color skinColor =RED;
 
 static  Sound fxCollision;
 
@@ -132,7 +133,7 @@ int main(void)
     
     DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
 
-    InitGame();
+    //InitGame();
     
     //Initialisation camera 
     //---------------------------------------------------------------------------------------
@@ -206,9 +207,23 @@ int main(void)
                     ReInitStage(envItems, envItemsLength);
                 }
         }
+        else if(inSkin ==true){
+            if(IsKeyPressed(KEY_Q)) skinColor = GREEN;
+            else if (IsKeyPressed(KEY_W)) skinColor = PURPLE;
+            else if(IsKeyPressed(KEY_E)) skinColor = RED;
+            else if(IsKeyPressed(KEY_R)) skinColor = YELLOW;
+            else if(IsKeyPressed(KEY_DELETE)){ // Touche Suppr 
+                inSkin = false;
+                inGame = false;
+            }
+        }
         else{
             if(IsKeyPressed(KEY_ENTER)){
+                //printf("ingame");
                 inGame = true;
+            }
+            else if (IsKeyPressed(KEY_Q)){ // press A on azerty keybord 
+                inSkin = true;
             }
         }
 
@@ -234,7 +249,7 @@ int main(void)
                 }
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
-                DrawRectangleRec(playerRect, RED);
+                DrawRectangleRec(playerRect, skinColor);
                 
                 EndMode2D();
 
@@ -253,13 +268,34 @@ int main(void)
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
                 
             }
-            else if (inGame == false ) {
+            else if (inGame == false && inSkin==false) {
                 DrawText("press enter to start ", 20, 120, 60, BLACK);
+                DrawText("press A to change skin ", 20, 200, 30, GRAY);
+           
             }
             else if ( isStageWOn == true){
                 DrawText("You won the stage !",20, 120, 60, BLACK );
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
             }
+            else if(inGame==false && inSkin==true){
+                DrawText("Skin selection",20, 50, 60, BLACK );
+                DrawText("The actual Skin",20,120, 30, DARKGRAY);
+                DrawRectangle(300, 120, 30, 30, skinColor);
+                //choix des couleurs
+                DrawRectangle(40, 300, 40, 40, GREEN);
+                DrawText("press A",100,300, 40, BLACK);
+                
+                DrawRectangle(40, 400, 40, 40, PURPLE);
+                DrawText("press Z",100,400, 40, BLACK);
+                
+                DrawRectangle(40, 500, 40, 40, RED);
+                DrawText("press E",100,500, 40, BLACK);
+                
+                DrawRectangle(40, 600, 40, 40, YELLOW);
+                DrawText("press R",100,600, 40, BLACK);
+                
+                DrawText("return to menu, press suppr ",100,700, 40, GRAY);
+            } 
             
 
             
@@ -442,7 +478,7 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
 }
 void InitGame()
 {
-    
+    ReInitStage();
     player.position = (Vector2){ 350, 800 };
     player.speed = 0;
     player.canJump = false;
