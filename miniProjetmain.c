@@ -106,7 +106,7 @@ static EnvItem envItems[] = {
         {{ 0, -950, 800, 10 }, 0,1, RED}
     };
  */ 
- static EnvItem envItems[700];
+ static EnvItem envItems[200];
 
 static bool isGameOver =false;
 static bool inGame = false;
@@ -308,9 +308,9 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         if(player->position.x < 0) {			//	if the player jumps to the right border of the window, move the player to the left border
             player->position.x = player->position.x+screenWidth;
         }
-        if(player->position.y < -950){
+        /*if(player->position.y < -950){
             isStageWon=true;
-        } 
+        } */
         
         if (player->canJump) 
         {
@@ -369,7 +369,7 @@ void InitGame()
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
 {
     for(int i =1; i<envItemsLength; i++){
-        if (envItems[i].rect.y  > 900 ){
+        if (envItems[i].rect.y  > 950 ){
             envItems[i].actif = 0 ;
             envItems[i].color = BLANK;
         }
@@ -381,8 +381,8 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
             envItems[i].actif = 1 ;
             if (i>1){
                 envItems[i].color = altYellow;
-                envItems[i].rect.y = GetRandomValue(-1000,10000);
-                envItems[i].rect.x = GetRandomValue(0, screenWidth );
+                envItems[i].rect.y = GetRandomValue(-10000,1000);
+                envItems[i].rect.x = GetRandomValue(0, screenWidth-100 ); // 100 : la largeur d 'une platforme
                 envItems[i].rect.width = 100;
                 envItems[i].rect.height = 10 ;
                 envItems[i].blocking = 1;
@@ -410,7 +410,7 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
 }
 void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta){
     for(int i =1; i <= envItemsLength; i++){
-        envItems[i].rect.y += PLAYER_JUMP_SPD*0.90;
+        envItems[i].rect.y += PLAYER_JUMP_SPD;
     }
     
 }
