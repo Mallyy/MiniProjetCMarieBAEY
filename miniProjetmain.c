@@ -175,7 +175,7 @@ int main(void)
         if(inGame){
             
             //PlayMusicStream(fxGameOver);
-            if(!isGameOver && inGame){
+            if(!isGameOver && inGame && !isStageWOn){
                 UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
                 UpdateStage(&player, envItems, envItemsLength);
                 camera.zoom += ((float)GetMouseWheelMove()*0.05f);
