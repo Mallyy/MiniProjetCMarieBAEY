@@ -2,7 +2,7 @@
 #include "raymath.h"
 
 #define G 400
-#define PLAYER_JUMP_SPD 350.f
+#define PLAYER_JUMP_SPD 450.f
 #define PLAYER_HOR_SPD 500.f
 
 typedef struct Player {
@@ -18,6 +18,12 @@ typedef struct EnvItem {
     int actif;
     Color color;
 } EnvItem;
+//---------------------------
+//Custom Color
+//-------------------------
+Color ultramarine = { 65, 55, 99, 255 };
+Color altYellow = { 255, 242, 110, 255 };
+Color altPurple = { 216, 0, 87, 255 };
 
 //-----------------------------------
 //Global Variable
@@ -103,7 +109,7 @@ static EnvItem envItems[] = {
 static bool isGameOver =false;
 static bool inGame = false;
 static bool inSkin = false;
-static bool isStageWOn = false;
+static bool isStageWon = false;
 static int score = 0;
 static double startTime;
 static Color skinColor =RED;
@@ -177,36 +183,42 @@ int main(void)
         if(inGame){
             
             //PlayMusicStream(fxGameOver);
-            if(!isGameOver && inGame && !isStageWOn && !inSkin){
+            if(!isGameOver && inGame && !isStageWon && !inSkin){
                 UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
                 UpdateStage(&player, envItems, envItemsLength);
                 camera.zoom += ((float)GetMouseWheelMove()*0.05f);
                 
                 if (camera.zoom > 3.0f) camera.zoom = 3.0f;
                 else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
-
+                
+                if(IsKeyPressed(KEY_DELETE)) isGameOver = true;
                 score = GetTime() - startTime;
 
             }
-            else if ((isGameOver && inGame )) {
+            else if ((isGameOver && inGame) || (isStageWon && inGame)) {
                // camera->offset = (Vector2){ width/2, height/2 };
                
                 if (IsKeyPressed(KEY_ENTER))
                 {
                     InitGame(); 
                     isGameOver = false;
-                    isStageWOn = false;
+                    isStageWon = false;
                     ReInitStage(envItems, envItemsLength);
                 }
+                else if(IsKeyPressed(KEY_DELETE)){
+                    inGame = false;
+                    isGameOver = false;
+                    
+                } 
             }
-            else if((isStageWOn && inGame))
+            /*else if((isStageWon && inGame))
                 if (IsKeyPressed(KEY_ENTER))
                 {
                     InitGame(); 
                     isGameOver = false;
-                    isStageWOn = false;
+                    isStageWon = false;
                     ReInitStage(envItems, envItemsLength);
-                }
+                }*/
         }
         else if(inSkin ==true){
             if(IsKeyPressed(KEY_Q)) skinColor = GREEN;
@@ -220,10 +232,8 @@ int main(void)
         else{
             if(IsKeyPressed(KEY_ENTER)){
                 inGame = true;
+                ReInitStage(envItems, envItemsLength);
                 InitGame(); 
-                //isGameOver = false;
-                //isStageWOn = false;
-                //ReInitStage(envItems, envItemsLength);
             }
             else if (IsKeyPressed(KEY_Q)){ // press A on azerty keybord 
                 inSkin = true;
@@ -244,7 +254,7 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(LIGHTGRAY);
-            if(!isGameOver && inGame && !isStageWOn){
+            if(!isGameOver && inGame && !isStageWon){
                 BeginMode2D(camera);
                 
                 for (int i = 0; i < envItemsLength; i++) {
@@ -269,6 +279,7 @@ int main(void)
             else if (isGameOver==true) {
                 DrawText ("GAME OVER",20, 120, 50, BLACK);
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
+                DrawText ("Press 'SUPPR' to return to the menu or 'ENTER' to try again",20, 300, 20, BLACK);
                 
             }
             else if (inGame == false && inSkin==false) {
@@ -276,7 +287,7 @@ int main(void)
                 DrawText("press A to change skin ", 20, 200, 30, GRAY);
            
             }
-            else if ( isStageWOn == true){
+            else if ( isStageWon == true){
                 DrawText("You won the stage !",20, 120, 60, BLACK );
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
             }
@@ -320,7 +331,7 @@ int main(void)
 
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
 {   
-    if(!isStageWOn){
+    if(!isStageWon){
         
         if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
         if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
@@ -332,7 +343,7 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
             player->position.x = player->position.x+screenWidth;
         }
         if(player->position.y < -950){
-            isStageWOn=true;
+            isStageWon=true;
         } 
         
         if (player->canJump) 
@@ -491,10 +502,10 @@ void InitGame()
 }
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
 {
-    for(int i =1; i<envItemsLength; i++){
+    for(int i =0; i<envItemsLength; i++){
         if (envItems[i].rect.y  > player->position.y+screenHeight/2+50){
             envItems[i].actif = 0 ;
-            envItems[i].color = DARKBROWN;
+            envItems[i].color = BLANK;
         }
     }
 }
@@ -502,10 +513,11 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
 {
     for(int i =0; i<envItemsLength; i++){    
             envItems[i].actif = 1 ;
-            if (i>1) envItems[i].color = GREEN;
+            if (i>1) envItems[i].color = altYellow;
             
     }
-    envItems[1].color = GRAY ;
+    envItems[0].color = ultramarine ;
+    envItems[1].color = altPurple ;
     envItems[envItemsLength-1].color = RED ;
     
 }
