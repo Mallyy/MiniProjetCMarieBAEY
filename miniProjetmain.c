@@ -23,7 +23,8 @@ typedef struct EnvItem {
 //-----------------------------------
 //Global Variable
 //-----------------------
-static bool isGameOver =false;
+static int screenWidth = 800;
+static int screenHeight = 1000;
 
 static Player player = { 0 };
 static EnvItem envItems[] = {
@@ -99,13 +100,13 @@ static EnvItem envItems[] = {
     };
   
 
-void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
-static int screenWidth = 800;
-static int screenHeight = 1000;
+static bool isGameOver =false;
 static bool inGame = false;
-static  Sound fxWav;
+static int score = 0;
 
+static  Sound fxCollision;
 
+void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -123,11 +124,13 @@ int main(void)
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
             // Load WAV audio file
     InitAudioDevice(); 
-    fxWav = LoadSound("ressource/collision.wav");
+    fxCollision = LoadSound("ressource/collision.wav");
+    //Music fxGameOver = LoadMusicStream("OneShot_OST.ogg");
     
     DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
-//    if()
+
     InitGame();
+    
     //Initialisation camera 
     //---------------------------------------------------------------------------------------
     Camera2D camera = { 0 };
@@ -163,8 +166,12 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
+        //UpdateMusicStream(fxGameOver);
         float deltaTime = GetFrameTime();
+        
         if(inGame){
+            
+            //PlayMusicStream(fxGameOver);
             if(!isGameOver && inGame){
                 UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
                 UpdateStage(&player, envItems, envItemsLength);
@@ -182,6 +189,7 @@ int main(void)
             }
             else if (isGameOver && inGame) {
                // camera->offset = (Vector2){ width/2, height/2 };
+               
                 if (IsKeyPressed(KEY_ENTER))
                 {
                     InitGame(); 
@@ -212,10 +220,9 @@ int main(void)
             ClearBackground(LIGHTGRAY);
             if(!isGameOver && inGame){
                 BeginMode2D(camera);
-           
+                
                 for (int i = 0; i < envItemsLength; i++) {
                     DrawRectangleRec(envItems[i].rect, envItems[i].color);
-                   // if envItems[i]
                 }
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
@@ -225,14 +232,17 @@ int main(void)
 
                 DrawText("Controls:", 20, 20, 10, BLACK);
                 DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
-                DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
-                DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
-                DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
-                DrawText("Current camera mode:", 20, 120, 10, BLACK);
-                DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
+                DrawText(TextFormat("%04i", score), 700, 20, 40, GRAY);
+                //DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
+                //DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
+                //DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
+                //DrawText("Current camera mode:", 20, 120, 10, BLACK);
+                
                 }
+               
             else if (isGameOver==true) {
                 DrawText ("GAME OVER",20, 120, 50, BLACK);
+                
             }
             else if (inGame == false ) {
                 DrawText("press enter to start ", 20, 120, 10, BLACK);
@@ -245,7 +255,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-     UnloadSound(fxWav);     // Unload sound data
+     UnloadSound(fxCollision); 
+     //UnloadMusicStream(fxGameOver);// Unload sound data
     // Unload sound data
     CloseAudioDevice();
     CloseWindow();      // Close window and OpenGL context
@@ -256,21 +267,27 @@ int main(void)
 
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
 {   
-   
+    
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
+    
+    if(player->position.x > screenWidth) {			//	if the player jumps to the right border of the window, move the player to the left border
+        player->position.x = player->position.x-screenWidth;
+    }
+    if(player->position.x < 0) {			//	if the player jumps to the right border of the window, move the player to the left border
+        player->position.x = player->position.x+screenWidth;
+	}
     if (player->canJump) 
     {
         player->speed = -PLAYER_JUMP_SPD;
         player->timeSinceJump = GetTime();
         player->canJump = false;
-        PlaySound(fxWav);
+        PlaySound(fxCollision);
     }
     if(GetTime() - player->timeSinceJump > 5){
         isGameOver=true;
        // printf("ligne 167");
     }
-
     int hitObstacle = 0;
     for (int i = 0; i < envItemsLength; i++) 
     {
@@ -402,7 +419,8 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
     if (player->position.x > bboxWorldMax.x) camera->target.x = bboxWorldMin.x + (player->position.x - bboxWorldMax.x);
     if (player->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
 }
-void InitGame(){
+void InitGame()
+{
     
     player.position = (Vector2){ 350, 800 };
     player.speed = 0;
@@ -411,7 +429,8 @@ void InitGame(){
 
 
 }
-void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength){
+void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
+{
     for(int i =1; i<envItemsLength; i++){
         if (envItems[i].rect.y  > player->position.y+screenHeight/2+50){
             envItems[i].actif = 0 ;
@@ -419,7 +438,8 @@ void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength){
         }
     }
 }
-void ReInitStage(EnvItem *envItems, int envItemsLength){
+void ReInitStage(EnvItem *envItems, int envItemsLength)
+{
     for(int i =0; i<envItemsLength; i++){    
             envItems[i].actif = 1 ;
             if (i>1) envItems[i].color = GREEN;
