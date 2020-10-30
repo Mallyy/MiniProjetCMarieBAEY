@@ -133,7 +133,8 @@ int main(void)
     
     DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
 
-    //InitGame();
+    InitGame();
+    ReInitStage(envItems, envItemsLength);
     
     //Initialisation camera 
     //---------------------------------------------------------------------------------------
@@ -176,7 +177,7 @@ int main(void)
         if(inGame){
             
             //PlayMusicStream(fxGameOver);
-            if(!isGameOver && inGame && !isStageWOn){
+            if(!isGameOver && inGame && !isStageWOn && !inSkin){
                 UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
                 UpdateStage(&player, envItems, envItemsLength);
                 camera.zoom += ((float)GetMouseWheelMove()*0.05f);
@@ -214,13 +215,15 @@ int main(void)
             else if(IsKeyPressed(KEY_R)) skinColor = YELLOW;
             else if(IsKeyPressed(KEY_DELETE)){ // Touche Suppr 
                 inSkin = false;
-                inGame = false;
             }
         }
         else{
             if(IsKeyPressed(KEY_ENTER)){
-                //printf("ingame");
                 inGame = true;
+                InitGame(); 
+                //isGameOver = false;
+                //isStageWOn = false;
+                //ReInitStage(envItems, envItemsLength);
             }
             else if (IsKeyPressed(KEY_Q)){ // press A on azerty keybord 
                 inSkin = true;
@@ -478,7 +481,6 @@ void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *env
 }
 void InitGame()
 {
-    ReInitStage();
     player.position = (Vector2){ 350, 800 };
     player.speed = 0;
     player.canJump = false;
