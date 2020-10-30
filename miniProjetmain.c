@@ -2,7 +2,7 @@
 #include "raymath.h"
 
 #define G 400
-#define PLAYER_JUMP_SPD 300.f
+#define PLAYER_JUMP_SPD 250.f
 #define PLAYER_HOR_SPD 500.f
 
 typedef struct Player {
@@ -32,91 +32,21 @@ static int screenWidth = 800;
 static int screenHeight = 1000;
 
 static Player player = { 0 };
-/*
-static EnvItem envItems[] = {
-        {{ 0, -1000, 800, 2000 }, 0,1, DARKBROWN }, // rect  { x,y,width,height} // background
-        {{ 0, 1000, 800, 400 }, 1,1, GRAY},       // platforme initiale
-        {{ 300, 200, 100, 10 }, 1,1, GREEN}, 
-        {{ 300, 900, 100, 10 }, 1,1, GREEN}, 
-        {{ 250, 300, 100, 10 }, 1,1, GREEN},
-        {{ 200, 950, 100, 10 }, 1,1, GREEN}, 
-        {{ 50, 950, 100, 10 }, 1,1, GREEN},
-        {{ 600, 900, 100, 10 }, 1,1, GREEN},  
-        {{ 400, 880, 100, 10 }, 1,1, GREEN},       
-        {{ 700, 840, 100, 10 }, 1,1, GREEN}, 
-        {{ 20, 800, 100, 10 }, 1,1, GREEN}, 
-        {{ 640, 750, 100, 10 }, 1,1, GREEN},
-        {{ 700, 750, 100, 10 }, 1,1, GREEN},
-        {{ 150, 700, 100, 10 }, 1,1, GREEN},
-        {{ 300, 650, 100, 10 }, 1,1, GREEN},
-        {{ 500, 650, 100, 10 }, 1,1, GREEN},
-        {{ 330, 610, 100, 10 }, 1,1, GREEN},
-        {{ 600, 770, 100, 10 }, 1,1, GREEN},
-        {{ 10, 640, 100, 10 }, 1,1, GREEN},
-        {{ 600, 600, 100, 10 }, 1,1, GREEN},
-        {{ 250, 570, 100, 10 }, 1,1, GREEN},
-        {{ 650, 520, 100, 10 }, 1,1, GREEN},
-        {{ 580, 450, 100, 10 }, 1,1, GREEN},
-        {{ 650, 300, 100, 10 }, 1,1, GREEN},
-        {{ 50, 300, 100, 10 }, 1,1, GREEN},
-        {{ 300, 250, 100, 10 }, 1,1, GREEN},
-        {{ 30, 230, 100, 10 }, 1,1, GREEN},
-        {{ 650, 180, 100, 10 }, 1,1, GREEN},
-        {{ 350, 140, 100, 10 }, 1,1, GREEN},
-        {{ 700, 90, 100, 10 }, 1,1, GREEN},
-        {{ 50, 30, 100, 10 }, 1,1, GREEN},
-        {{ 340, 0, 100, 10 }, 1,1, GREEN},
-        {{ 550, 100, 100, 10 }, 1,1, GREEN},
-        {{ 650, -400, 100, 10 }, 1,1, GREEN},
-        {{ 650, -300, 100, 10 }, 1,1, GREEN},
-        {{ 650, -200, 100, 10 }, 1,1, GREEN},
-        {{ 650, 0, 100, 10 }, 1,1, GREEN},
-        {{ 300, -200, 100, 10 }, 1,1, GREEN}, 
-        {{ 300, -900, 100, 10 }, 1,1, GREEN}, 
-        {{ 250, -300, 100, 10 }, 1,1, GREEN},
-        {{ 200, -950, 100, 10 }, 1,1, GREEN}, 
-        {{ 50, -950, 100, 10 }, 1,1, GREEN},
-        {{ 600, -900, 100, 10 }, 1,1, GREEN},  
-        {{ 400, -880, 100, 10 }, 1,1, GREEN},       
-        {{ 700, -840, 100, 10 }, 1,1, GREEN}, 
-        {{ 20, -800, 100, 10 }, 1,1, GREEN}, 
-        {{ 640,-750, 100, 10 }, 1,1, GREEN},
-        {{ 700, -750, 100, 10 }, 1,1, GREEN},
-        {{ 150, -700, 100, 10 }, 1,1, GREEN },
-        {{ 300, -650, 100, 10 }, 1,1, GREEN },
-        {{ 500, -650, 100, 10 }, 1,1, GREEN },
-        {{ 330, -610, 100, 10 }, 1,1, GREEN },
-        {{ 600, -770, 100, 10 }, 1,1, GREEN },
-        {{ 10, -640, 100, 10 }, 1,1, GREEN },
-        {{ 600, -600, 100, 10 }, 1,1, GREEN },
-        {{ 250, -570, 100, 10 }, 1,1, GREEN },
-        {{ 650, -520, 100, 10 }, 1,1, GREEN},
-        {{ 580, -450, 100, 10 }, 1,1, GREEN },
-        {{ 650, -300, 100, 10 }, 1,1, GREEN},
-        {{ 50, -300, 100, 10 }, 1,1, GREEN},
-        {{ 300, -250, 100, 10 }, 1,1, GREEN},
-        {{ 30, -230, 100, 10 }, 1,1, GREEN },
-        {{ 650, -180, 100, 10 }, 1,1, GREEN},
-        {{ 350, -140, 100, 10 }, 1,1, GREEN},
-        {{ 700, -90, 100, 10 }, 1,1, GREEN},
-        {{ 50, -30, 100, 10 }, 1,1, GREEN },
-        {{ 340, 0, 100, 10 }, 1,1, GREEN },
-        {{ 650, 100, 100, 10 }, 1,1, GREEN },
-        {{ 650, -1000, 100, 10 }, 1,1 ,GREEN},        
-        {{ 0, -950, 800, 10 }, 0,1, RED}
-    };
- */ 
- static EnvItem envItems[200];
+static EnvItem envItems[300];
 
+//---------------------
+//Default
+//----------------
 static bool isGameOver =false;
 static bool inGame = false;
 static bool inSkin = false;
 static bool isStageWon = false;
 static int score = 0;
-static double startTime;
-static Color skinColor =RED;
+static int iMax = 0;
+static Color skinColor = RED;
 
 static  Sound fxCollision;
+static double startTime;
 
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 void InitGame(void);
@@ -176,17 +106,8 @@ int main(void)
                 else if(IsKeyPressed(KEY_DELETE)){
                     inGame = false;
                     isGameOver = false;
-                    
                 } 
             }
-            /*else if((isStageWon && inGame))
-                if (IsKeyPressed(KEY_ENTER))
-                {
-                    InitGame(); 
-                    isGameOver = false;
-                    isStageWon = false;
-                    ReInitStage(envItems, envItemsLength);
-                }*/
         }
         else if(inSkin ==true){
             if(IsKeyPressed(KEY_Q)) skinColor = GREEN;
@@ -207,15 +128,6 @@ int main(void)
                 inSkin = true;
             }
         }
-
-       
-
-
-       // cameraOption = (cameraOption + 1)%cameraUpdatersLength;
-
-        // Call update camera function by its pointer
-        //----------------------------------------------------------------------------------
-
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -308,9 +220,9 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         if(player->position.x < 0) {			//	if the player jumps to the right border of the window, move the player to the left border
             player->position.x = player->position.x+screenWidth;
         }
-        /*if(player->position.y < -950){
+        if(player->position.y <= envItems[iMax].rect.y){
             isStageWon=true;
-        } */
+        } 
         
         if (player->canJump) 
         {
@@ -321,7 +233,7 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         }
         
         // GameOver Conditions
-        if(GetTime() - player->timeSinceJump > 5){
+        if(GetTime() - player->timeSinceJump > 3){
             isGameOver=true;
            // printf("ligne 167");
         }
@@ -376,7 +288,8 @@ void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
     }
 }
 void ReInitStage(EnvItem *envItems, int envItemsLength)
-{
+{   // place les platforme aleatoirement
+    iMax=0;
     for(int i =0; i<envItemsLength; i++){    
             envItems[i].actif = 1 ;
             if (i>1){
@@ -387,6 +300,7 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
                 envItems[i].rect.height = 10 ;
                 envItems[i].blocking = 1;
                 envItems[i].actif = 1;
+                if(envItems[i].rect.y< envItems[iMax].rect.y) iMax = i;
             }
             
             
@@ -408,9 +322,9 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
     envItems[0].actif = 1;
     
 }
-void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta){
+void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta)
+{
     for(int i =1; i <= envItemsLength; i++){
         envItems[i].rect.y += PLAYER_JUMP_SPD;
     }
-    
 }
