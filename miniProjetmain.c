@@ -2,7 +2,7 @@
 #include "raymath.h"
 
 #define G 400
-#define PLAYER_JUMP_SPD 450.f
+#define PLAYER_JUMP_SPD 300.f
 #define PLAYER_HOR_SPD 500.f
 
 typedef struct Player {
@@ -32,6 +32,7 @@ static int screenWidth = 800;
 static int screenHeight = 1000;
 
 static Player player = { 0 };
+/*
 static EnvItem envItems[] = {
         {{ 0, -1000, 800, 2000 }, 0,1, DARKBROWN }, // rect  { x,y,width,height} // background
         {{ 0, 1000, 800, 400 }, 1,1, GRAY},       // platforme initiale
@@ -104,7 +105,8 @@ static EnvItem envItems[] = {
         {{ 650, -1000, 100, 10 }, 1,1 ,GREEN},        
         {{ 0, -950, 800, 10 }, 0,1, RED}
     };
-  
+ */ 
+ static EnvItem envItems[700];
 
 static bool isGameOver =false;
 static bool inGame = false;
@@ -120,14 +122,17 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 void InitGame(void);
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength);
 void ReInitStage(EnvItem *envItems, int envItemsLength);
+void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta);
 
 int main(void)
 {
+    ReInitStage(envItems, 200);
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
             // Load WAV audio file
+    
     InitAudioDevice(); 
     fxCollision = LoadSound("ressource/collision.wav");
     //Music fxGameOver = LoadMusicStream("OneShot_OST.ogg");
@@ -135,7 +140,6 @@ int main(void)
     DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
 
     InitGame();
-    ReInitStage(envItems, envItemsLength);
    
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -226,7 +230,7 @@ int main(void)
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
                 DrawRectangleRec(playerRect, skinColor);
                 
-                EndMode2D();
+                //EndMode2D();
 
                 DrawText("Controls:", 20, 20, 10, BLACK);
                 DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
@@ -324,18 +328,19 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         int hitObstacle = 0;
         for (int i = 0; i < envItemsLength; i++) 
         {
-            EnvItem *ei = envItems + i;
+            
             Vector2 *p = &(player->position);
-            if (ei->blocking &&
-                ei->rect.x <= p->x && 
-                ei->rect.x + ei->rect.width >= p->x &&
-                ei->rect.y >= p->y &&
-                ei->rect.y < p->y + player->speed*delta &&
-                ei->actif)
+            if (envItems[i].blocking &&
+                envItems[i].rect.x <= p->x && 
+                envItems[i].rect.x + envItems[i].rect.width >= p->x &&
+                envItems[i].rect.y >= p->y &&
+                envItems[i].rect.y < p->y + player->speed*delta &&
+                envItems[i].actif)
             {
                 hitObstacle = 1;
                 player->speed = 0.0f;
-                p->y = ei->rect.y;
+                p->y = envItems[i].rect.y;
+                UpdateStageOnHit(envItems, envItemsLength, delta);
             }
         }
         if (!hitObstacle) 
@@ -353,7 +358,7 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 
 void InitGame()
 {
-    player.position = (Vector2){ 350, 800 };
+    player.position = (Vector2){ 350, 900 };
     player.speed = 0;
     player.canJump = false;
     player.timeSinceJump = GetTime();
@@ -363,8 +368,8 @@ void InitGame()
 }
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
 {
-    for(int i =0; i<envItemsLength; i++){
-        if (envItems[i].rect.y  > player->position.y+screenHeight/2+50){
+    for(int i =1; i<envItemsLength; i++){
+        if (envItems[i].rect.y  > 900 ){
             envItems[i].actif = 0 ;
             envItems[i].color = BLANK;
         }
@@ -374,11 +379,38 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
 {
     for(int i =0; i<envItemsLength; i++){    
             envItems[i].actif = 1 ;
-            if (i>1) envItems[i].color = altYellow;
+            if (i>1){
+                envItems[i].color = altYellow;
+                envItems[i].rect.y = GetRandomValue(-1000,10000);
+                envItems[i].rect.x = GetRandomValue(0, screenWidth );
+                envItems[i].rect.width = 100;
+                envItems[i].rect.height = 10 ;
+                envItems[i].blocking = 1;
+                envItems[i].actif = 1;
+            }
+            
             
     }
     envItems[0].color = ultramarine ;
+    envItems[0].rect.y = -1000;
+    envItems[0].rect.x = 0;
+    envItems[0].rect.width = 800;
+    envItems[0].rect.height = 2000 ;
+    envItems[0].blocking = 0;
+    envItems[0].actif = 1;
+
     envItems[1].color = altPurple ;
-    envItems[envItemsLength-1].color = RED ;
+    envItems[1].rect.y = 900;
+    envItems[1].rect.x = 0;
+    envItems[1].rect.width = 800;
+    envItems[1].rect.height = 400 ;
+    envItems[1].blocking = 1;
+    envItems[0].actif = 1;
+    
+}
+void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta){
+    for(int i =1; i <= envItemsLength; i++){
+        envItems[i].rect.y += PLAYER_JUMP_SPD*0.90;
+    }
     
 }
