@@ -182,16 +182,11 @@ int main(void)
                 
                 if (camera.zoom > 3.0f) camera.zoom = 3.0f;
                 else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
-                
-                if (IsKeyPressed(KEY_R)) 
-                {
-                    camera.zoom = 1.0f;
-                    player.position = (Vector2){ 400, 280 };
-                }
+
                 score = GetTime() - startTime;
 
             }
-            else if ((isGameOver && inGame ) || (isStageWOn && inGame)) {
+            else if ((isGameOver && inGame )) {
                // camera->offset = (Vector2){ width/2, height/2 };
                
                 if (IsKeyPressed(KEY_ENTER))
@@ -202,6 +197,14 @@ int main(void)
                     ReInitStage(envItems, envItemsLength);
                 }
             }
+            else if((isStageWOn && inGame))
+                if (IsKeyPressed(KEY_ENTER))
+                {
+                    InitGame(); 
+                    isGameOver = false;
+                    isStageWOn = false;
+                    ReInitStage(envItems, envItemsLength);
+                }
         }
         else{
             if(IsKeyPressed(KEY_ENTER)){
