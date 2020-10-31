@@ -187,7 +187,7 @@ int main(void)
                 DrawText ("'SUPPR' to return to the menu",20, 300, 30, WHITE);
                 DrawText("'ENTER' to try again",20, 350, 30, WHITE);
                 DrawText(TextFormat("LAST SCORE: %i", score), 200, 450, 50, MAROON);
-                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 550, 60, BLACK);
+                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 550, 70, BLACK);
                 
             }
             else if (inGame == false && inSkin==false) {
