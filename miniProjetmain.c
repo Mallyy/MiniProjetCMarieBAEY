@@ -2,9 +2,15 @@
 #include "raymath.h"
 
 #define G 400
-#define PLAYER_JUMP_SPD 250.f
+#define PLAYER_JUMP_SPD 350.f
 #define PLAYER_HOR_SPD 500.f
+#define NUMBER_ITEMS 300
 
+// NOTE: Storage positions must start with 0, directly related to file memory layout
+typedef enum {
+    STORAGE_POSITION_SCORE      = 0,
+    STORAGE_POSITION_HISCORE    = 1
+} StorageData;
 typedef struct Player {
     Vector2 position;
     float speed;
@@ -32,7 +38,7 @@ static int screenWidth = 800;
 static int screenHeight = 1000;
 
 static Player player = { 0 };
-static EnvItem envItems[300];
+static EnvItem envItems[NUMBER_ITEMS];
 
 //---------------------
 //Default
@@ -42,8 +48,10 @@ static bool inGame = false;
 static bool inSkin = false;
 static bool isStageWon = false;
 static int score = 0;
+static int hiscore = 0; 
 static int iMax = 0;
 static Color skinColor = RED;
+static float stageSpeed;
 
 static  Sound fxCollision;
 static double startTime;
@@ -52,23 +60,25 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 void InitGame(void);
 void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength);
 void ReInitStage(EnvItem *envItems, int envItemsLength);
-void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta);
+void UpdateStageOnHit(EnvItem *envItems, int envItemsLength);
 
 int main(void)
 {
     ReInitStage(envItems, 200);
     // Initialization
     //--------------------------------------------------------------------------------------
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "DoodleJump ECO+");
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
-            // Load WAV audio file
     
+     // Load WAV audio file
     InitAudioDevice(); 
     fxCollision = LoadSound("ressource/collision.wav");
-    //Music fxGameOver = LoadMusicStream("OneShot_OST.ogg");
-    
-    DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
+    SetSoundVolume(fxCollision, 0.2);
 
+    DrawText("Press enter to start the game ", 20, 20, 50, BLACK);
+    
+    
     InitGame();
    
     SetTargetFPS(60);
@@ -80,35 +90,51 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
         //UpdateMusicStream(fxGameOver);
+        
         float deltaTime = GetFrameTime();
         
-        if(inGame){
+        if(inGame)
+        {
             
             //PlayMusicStream(fxGameOver);
-            if(!isGameOver && inGame && !isStageWon && !inSkin){
+            //stage speed at the beginning
+            
+            //the game's on
+            if(!isGameOver && inGame && !isStageWon && !inSkin)
+            {
                 UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
                 UpdateStage(&player, envItems, envItemsLength);
                 
+                // to end the game 
                 if(IsKeyPressed(KEY_DELETE)) isGameOver = true;
+                
+                // real time score
                 score = GetTime() - startTime;
-
-            }
-            else if ((isGameOver && inGame) || (isStageWon && inGame)) {
-               // camera->offset = (Vector2){ width/2, height/2 };
                
-                if (IsKeyPressed(KEY_ENTER))
+            }
+            // gameOver or Game Won
+            else if ((isGameOver && inGame) || (isStageWon && inGame)) 
+            {
+                if (IsKeyPressed(KEY_ENTER)) // replay the game
                 {
                     InitGame(); 
                     isGameOver = false;
                     isStageWon = false;
                     ReInitStage(envItems, envItemsLength);
                 }
-                else if(IsKeyPressed(KEY_DELETE)){
+                else if(IsKeyPressed(KEY_DELETE)){ // go to menu
                     inGame = false;
                     isGameOver = false;
-                } 
+                }
+                // save the actual score and update the highscore if needed
+                SaveStorageValue(STORAGE_POSITION_SCORE, score);
+                if(score>LoadStorageValue(STORAGE_POSITION_HISCORE)) SaveStorageValue(STORAGE_POSITION_HISCORE, score);
+                
+                // to print the highScore
+                hiscore = LoadStorageValue(STORAGE_POSITION_HISCORE);          
             }
         }
+        // skin menu
         else if(inSkin ==true){
             if(IsKeyPressed(KEY_Q)) skinColor = GREEN;
             else if (IsKeyPressed(KEY_W)) skinColor = PURPLE;
@@ -118,14 +144,21 @@ int main(void)
                 inSkin = false;
             }
         }
+        // menu
         else{
-            if(IsKeyPressed(KEY_ENTER)){
+            score = LoadStorageValue(STORAGE_POSITION_SCORE);
+            hiscore = LoadStorageValue(STORAGE_POSITION_HISCORE);
+            if(IsKeyPressed(KEY_ENTER)){ // start the game
                 inGame = true;
                 ReInitStage(envItems, envItemsLength);
                 InitGame(); 
             }
-            else if (IsKeyPressed(KEY_Q)){ // press A on azerty keybord 
+            else if (IsKeyPressed(KEY_Q)){ // press A on azerty keybord || enter in the skin selection menu
                 inSkin = true;
+            }
+            else if (IsKeyPressed(KEY_R)){
+                SaveStorageValue(STORAGE_POSITION_SCORE, 0);
+                SaveStorageValue(STORAGE_POSITION_HISCORE, 0);
             }
         }
         // Draw
@@ -142,15 +175,9 @@ int main(void)
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
                 DrawRectangleRec(playerRect, skinColor);
                 
-                //EndMode2D();
-
-                DrawText("Controls:", 20, 20, 10, BLACK);
-                DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
+                DrawText("Controls:", 20, 20, 30, WHITE);
+                DrawText("- Right/Left to move", 40, 60, 30, GRAY);
                 DrawText(TextFormat("%04i sec", score), 600, 20, 40, GRAY);
-                //DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
-                //DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
-                //DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
-                //DrawText("Current camera mode:", 20, 120, 10, BLACK);
                 
                 }
                
@@ -158,11 +185,16 @@ int main(void)
                 DrawText ("GAME OVER",20, 120, 50, BLACK);
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
                 DrawText ("Press 'SUPPR' to return to the menu or 'ENTER' to try again",20, 300, 20, BLACK);
+                DrawText(TextFormat("LAST SCORE: %i", score), 200, 400, 40, MAROON);
+                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 500, 50, BLACK);
                 
             }
             else if (inGame == false && inSkin==false) {
                 DrawText("press enter to start ", 20, 120, 60, BLACK);
-                DrawText("press A to change skin ", 20, 200, 30, GRAY);
+                DrawText("press A to change skin ", 20, 200, 40, DARKGRAY);
+                DrawText("press R to reset scores  ", 20, 260, 35, GRAY);
+                DrawText(TextFormat("LAST SCORE: %i", score), 200, 400, 40, MAROON);
+                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 500, 50, BLACK);
            
             }
             else if ( isStageWon == true){
@@ -197,9 +229,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-     UnloadSound(fxCollision); 
-     //UnloadMusicStream(fxGameOver);// Unload sound data
-    // Unload sound data
+     UnloadSound(fxCollision);
+
     CloseAudioDevice();
     CloseWindow();      // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -233,14 +264,13 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
         }
         
         // GameOver Conditions
-        if(GetTime() - player->timeSinceJump > 3){
+        if(GetTime() - player->timeSinceJump > 4){ // 4 sec without touching a platform : gameOver
             isGameOver=true;
            // printf("ligne 167");
         }
         int hitObstacle = 0;
         for (int i = 0; i < envItemsLength; i++) 
-        {
-            
+        {     
             Vector2 *p = &(player->position);
             if (envItems[i].blocking &&
                 envItems[i].rect.x <= p->x && 
@@ -252,14 +282,17 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
                 hitObstacle = 1;
                 player->speed = 0.0f;
                 p->y = envItems[i].rect.y;
-                UpdateStageOnHit(envItems, envItemsLength, delta);
+                //UpdateStageOnHit(envItems, envItemsLength, delta);
             }
         }
+        
+        UpdateStageOnHit(envItems, envItemsLength);
         if (!hitObstacle) 
         {
             player->position.y += player->speed*delta;
             player->speed += G*delta;
             player->canJump = false;
+            
             
         } 
         else{ player->canJump = true;}
@@ -270,10 +303,12 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 
 void InitGame()
 {
-    player.position = (Vector2){ 350, 900 };
+    player.position = (Vector2){ 350, 900 };//starting position
     player.speed = 0;
     player.canJump = false;
     player.timeSinceJump = GetTime();
+    
+    // startTime allows to calculate the score
     startTime = GetTime();
 
 
@@ -288,23 +323,7 @@ void UpdateStage(Player *player, EnvItem *envItems, int envItemsLength)
     }
 }
 void ReInitStage(EnvItem *envItems, int envItemsLength)
-{   // place les platforme aleatoirement
-    iMax=0;
-    for(int i =0; i<envItemsLength; i++){    
-            envItems[i].actif = 1 ;
-            if (i>1){
-                envItems[i].color = altYellow;
-                envItems[i].rect.y = GetRandomValue(-10000,1000);
-                envItems[i].rect.x = GetRandomValue(0, screenWidth-100 ); // 100 : la largeur d 'une platforme
-                envItems[i].rect.width = 100;
-                envItems[i].rect.height = 10 ;
-                envItems[i].blocking = 1;
-                envItems[i].actif = 1;
-                if(envItems[i].rect.y< envItems[iMax].rect.y) iMax = i;
-            }
-            
-            
-    }
+{   // randomly generate envItems but for the 2 first ones
     envItems[0].color = ultramarine ;
     envItems[0].rect.y = -1000;
     envItems[0].rect.x = 0;
@@ -319,12 +338,28 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
     envItems[1].rect.width = 800;
     envItems[1].rect.height = 400 ;
     envItems[1].blocking = 1;
-    envItems[0].actif = 1;
-    
+    envItems[1].actif = 1;
+    iMax=0;
+    for(int i =2; i<envItemsLength; i++){      
+        if (i>1){
+            envItems[i].color = altYellow;
+            envItems[i].rect.y = GetRandomValue(envItems[i-1].rect.y,envItems[i-1].rect.y-200); // p
+            envItems[i].rect.x = GetRandomValue(0, screenWidth-100 ); // 100 : with of envItems
+            envItems[i].rect.width = 100;
+            envItems[i].rect.height = 10 ;
+            envItems[i].blocking = 1;
+            envItems[i].actif = 1;
+            if(envItems[i].rect.y< envItems[iMax].rect.y) iMax = i;            
+        }
+    }   
 }
-void UpdateStageOnHit(EnvItem *envItems, int envItemsLength, float delta)
+void UpdateStageOnHit(EnvItem *envItems, int envItemsLength)
 {
+    if(score < 15) stageSpeed = 1;
+    else if ( score >=15 && score < 30) stageSpeed = 1.2;
+    else if ( score >=30 && score < 60) stageSpeed = 1.4;
+    else if (score >= 60) stageSpeed = 1.6;
     for(int i =1; i <= envItemsLength; i++){
-        envItems[i].rect.y += PLAYER_JUMP_SPD;
+        envItems[i].rect.y += stageSpeed;
     }
 }
