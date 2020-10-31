@@ -165,7 +165,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(LIGHTGRAY);
+            ClearBackground(ultramarine);
             if(!isGameOver && inGame && !isStageWon){
                 
                 for (int i = 0; i < envItemsLength; i++) {
@@ -182,41 +182,42 @@ int main(void)
                 }
                
             else if (isGameOver==true) {
-                DrawText ("GAME OVER",20, 120, 50, BLACK);
-                DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
-                DrawText ("Press 'SUPPR' to return to the menu or 'ENTER' to try again",20, 300, 20, BLACK);
-                DrawText(TextFormat("LAST SCORE: %i", score), 200, 400, 40, MAROON);
-                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 500, 50, BLACK);
+                DrawText ("GAME OVER :( ",20, 120, 60, RED);
+                DrawText(TextFormat("%04i sec.", score), 80, 200, 40, altYellow);
+                DrawText ("'SUPPR' to return to the menu",20, 300, 30, WHITE);
+                DrawText("'ENTER' to try again",20, 350, 30, WHITE);
+                DrawText(TextFormat("LAST SCORE: %i", score), 200, 450, 50, MAROON);
+                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 550, 60, BLACK);
                 
             }
             else if (inGame == false && inSkin==false) {
-                DrawText("press enter to start ", 20, 120, 60, BLACK);
-                DrawText("press A to change skin ", 20, 200, 40, DARKGRAY);
-                DrawText("press R to reset scores  ", 20, 260, 35, GRAY);
-                DrawText(TextFormat("LAST SCORE: %i", score), 200, 400, 40, MAROON);
-                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 500, 50, BLACK);
+                DrawText("'ENTER' to start ", 200, 120, 50, WHITE);
+                DrawText("press 'A' to change skin ", 20, 300, 40, altYellow);
+                DrawText("press 'R' to reset scores  ", 20, 360, 35, PURPLE);
+                DrawText(TextFormat("LAST SCORE: %i", score), 200, 600, 40, MAROON);
+                DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 700, 50, BLACK);
            
             }
             else if ( isStageWon == true){
-                DrawText("You won the stage !",20, 120, 60, BLACK );
+                DrawText("You won the stage !",20, 120, 60, WHITE );
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, GRAY);
             }
             else if(inGame==false && inSkin==true){
-                DrawText("Skin selection",20, 50, 60, BLACK );
-                DrawText("The actual Skin",20,120, 30, DARKGRAY);
+                DrawText("Skin selection",20, 50, 60, WHITE );
+                DrawText("The actual Skin",20,120, 30, altYellow);
                 DrawRectangle(300, 120, 30, 30, skinColor);
                 //choix des couleurs
                 DrawRectangle(40, 300, 40, 40, GREEN);
-                DrawText("press A",100,300, 40, BLACK);
+                DrawText("press A",100,300, 40, WHITE);
                 
                 DrawRectangle(40, 400, 40, 40, PURPLE);
-                DrawText("press Z",100,400, 40, BLACK);
+                DrawText("press Z",100,400, 40, WHITE);
                 
                 DrawRectangle(40, 500, 40, 40, RED);
-                DrawText("press E",100,500, 40, BLACK);
+                DrawText("press E",100,500, 40, WHITE);
                 
                 DrawRectangle(40, 600, 40, 40, YELLOW);
-                DrawText("press R",100,600, 40, BLACK);
+                DrawText("press R",100,600, 40, WHITE);
                 
                 DrawText("return to menu, press suppr ",100,700, 40, GRAY);
             } 
@@ -332,7 +333,7 @@ void ReInitStage(EnvItem *envItems, int envItemsLength)
     envItems[0].blocking = 0;
     envItems[0].actif = 1;
 
-    envItems[1].color = altPurple ;
+    envItems[1].color = VIOLET ;
     envItems[1].rect.y = 900;
     envItems[1].rect.x = 0;
     envItems[1].rect.width = 800;
