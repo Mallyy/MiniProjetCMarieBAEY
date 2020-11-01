@@ -106,7 +106,7 @@ int main(void)
                 UpdateStage(&player, envItems, envItemsLength);
                 
                 // to end the game 
-                if(IsKeyPressed(KEY_DELETE)) isGameOver = true;
+                if(IsKeyPressed(KEY_BACKSPACE)) isGameOver = true;
                 
                 // real time score
                 score = GetTime() - startTime;
@@ -122,7 +122,7 @@ int main(void)
                     isStageWon = false;
                     ReInitStage(envItems, envItemsLength);
                 }
-                else if(IsKeyPressed(KEY_DELETE)){ // go to menu
+                else if(IsKeyPressed(KEY_BACKSPACE)){ // go to menu
                     inGame = false;
                     isGameOver = false;
                 }
@@ -140,7 +140,7 @@ int main(void)
             else if (IsKeyPressed(KEY_W)) skinColor = PURPLE;
             else if(IsKeyPressed(KEY_E)) skinColor = RED;
             else if(IsKeyPressed(KEY_R)) skinColor = YELLOW;
-            else if(IsKeyPressed(KEY_DELETE)){ // Touche Suppr 
+            else if(IsKeyPressed(KEY_BACKSPACE)){ 
                 inSkin = false;
             }
         }
@@ -176,15 +176,16 @@ int main(void)
                 DrawRectangleRec(playerRect, skinColor);
                 
                 DrawText("Controls:", 20, 20, 30, WHITE);
-                DrawText("- Right/Left to move", 40, 60, 30, GRAY);
+                DrawText("- Right/Left to move", 40, 60, 20, GRAY);
+                DrawText("- Backspace to end the game", 40, 90, 20, GRAY);
                 DrawText(TextFormat("%04i sec", score), 600, 20, 40, GRAY);
                 
                 }
                
             else if (isGameOver==true) {
-                DrawText ("GAME OVER :( ",20, 120, 60, RED);
+                DrawText ("GAME OVER :'( ",20, 120, 60, RED);
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, altYellow);
-                DrawText ("'SUPPR' to return to the menu",20, 300, 30, WHITE);
+                DrawText ("'BACKSPACE' to return to the menu",20, 300, 30, WHITE);
                 DrawText("'ENTER' to try again",20, 350, 30, WHITE);
                 DrawText(TextFormat("LAST SCORE: %i", score), 200, 450, 50, MAROON);
                 DrawText(TextFormat("HI-SCORE: %i", hiscore), 200, 550, 70, BLACK);
@@ -219,7 +220,7 @@ int main(void)
                 DrawRectangle(40, 600, 40, 40, YELLOW);
                 DrawText("press R",100,600, 40, WHITE);
                 
-                DrawText("return to menu, press suppr ",100,700, 40, GRAY);
+                DrawText("return to menu, press 'BACKSPACE' ",100,700, 40, GRAY);
             } 
             
 
