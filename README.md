@@ -9,7 +9,9 @@ base : exemple raylib platformer with 2D camera
 //--------------------------
 
 Apres avoit telecharger le dossier MiniProjetC complet :
+
 Cas 1 : Lancer l'executable ( fonctionne sous window, apparamment ne fonctionne pas sous MacOs)
+
 Cas 2 : La solution presentée au dessus ne fonctionne pas, vous pouvez esseyer de recompiler le projet :
 soit :
 	- telecharger raylib
@@ -17,6 +19,7 @@ soit :
 	- a partir de NotePad++ for raylib, ouvrir miniProjetMzin.c
 	- compiler le code avec F6
 Normalement, la compilation lance le jeu et genere egalement un excutable que vous pourrez utiliser
+
 Sinon : -gcc -o miniProjetmain.exe miniProjetmain.c -s -static -Os -std=c99 -Wall -Iexternal -DPLATFORM_DESKTOP -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I include/
 
 //---------------------------------------
@@ -24,6 +27,7 @@ Sinon : -gcc -o miniProjetmain.exe miniProjetmain.c -s -static -Os -std=c99 -Wal
 //---------------------
 
 Les touches indiquées en jeu correspondent a un claver azerty
+
 Une fois l'application lancée, vous pouvez commencer a jouer en appuyant sur Entrée
 
 but du jeu : survivre le plus longtemps possible en sautant de platforme en platforme
