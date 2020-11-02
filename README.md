@@ -14,10 +14,15 @@ Cas 1 : Lancer l'executable ( fonctionne sous window, apparamment ne fonctionne 
 
 Cas 2 : La solution presentée au dessus ne fonctionne pas, vous pouvez esseyer de recompiler le projet :
 soit :
+
 	- telecharger raylib
+	
 	- ouvrir NotePad ++ for raylib
+	
 	- a partir de NotePad++ for raylib, ouvrir miniProjetMzin.c
+	
 	- compiler le code avec F6
+	
 Normalement, la compilation lance le jeu et genere egalement un excutable que vous pourrez utiliser
 
 Sinon : -gcc -o miniProjetmain.exe miniProjetmain.c -s -static -Os -std=c99 -Wall -Iexternal -DPLATFORM_DESKTOP -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I include/
