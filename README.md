@@ -3,9 +3,11 @@
 
 projet : creation d'un miniplatormer style doodleJump
 base : exemple raylib platformer with 2D camera
+
 //--------------------------------------
 //Comment lancer le jeu
 //--------------------------
+
 Apres avoit telecharger le dossier MiniProjetC complet :
 Cas 1 : Lancer l'executable ( fonctionne sous window, apparamment ne fonctionne pas sous MacOs)
 Cas 2 : La solution presentée au dessus ne fonctionne pas, vous pouvez esseyer de recompiler le projet :
@@ -20,6 +22,7 @@ Sinon : -gcc -o miniProjetmain.exe miniProjetmain.c -s -static -Os -std=c99 -Wal
 //---------------------------------------
 //Comment l'utiliser
 //---------------------
+
 Les touches indiquées en jeu correspondent a un claver azerty
 Une fois l'application lancée, vous pouvez commencer a jouer en appuyant sur Entrée
 
@@ -32,6 +35,7 @@ Le menu vous permet de:
 //----------------------------------------
 //Description des fichiers
 //------------------------------
+
 raymath.h : librairie de raylib utilisé notamment pour les vecteurs
 
 storageDate : sauvegarde les scores
@@ -46,6 +50,7 @@ ressource : contient le fichier audio utilisé dans le jeu
 //--------------------------------------
 //Resumé des améliorations :
 //---------------------------
+
 	le cube rebondit
 	le cube peut passer d'un bord à l'autre de l'ecran
 	la map est generée aléatoirement à chaque nouvelle partie
@@ -71,6 +76,7 @@ ressource : contient le fichier audio utilisé dans le jeu
 //--------------------------------------------
 //Point d'amelioration
 //-----------------------------
+
 	Génaration infini de la map
 	Complexification de la map au cours du temps ( densite de platforme moins elevé, platforme mobile ... )
 	Musique de fond
