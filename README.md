@@ -26,8 +26,10 @@ soit :
 Normalement, la compilation lance le jeu et genere egalement un excutable que vous pourrez utiliser
 
 Sinon : 
-	ajouter dans le dossiser lib la librairie de votre systeme d exploitation ( cintient celle pour window de base )
-	gcc -o miniProjetmain.exe miniProjetmain.c  -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I .
+
+	-ajouter dans le dossier lib la librairie de votre systeme d exploitation ( contient celle pour window de base )
+	
+	-gcc -o miniProjetmain.exe miniProjetmain.c  -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I .
 
 //---------------------------------------
 //Comment l'utiliser
