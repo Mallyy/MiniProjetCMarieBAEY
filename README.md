@@ -4,6 +4,8 @@
 projet : creation d'un miniplatormer style doodleJump
 base : exemple raylib platformer with 2D camera
 
+video de présentation : https://youtu.be/jeoJecD86m0
+
 //--------------------------------------
 //Comment lancer le jeu
 //--------------------------
