@@ -183,7 +183,7 @@ int main(void)
                 }
                
             else if (isGameOver==true) {
-                DrawText ("GAME OVER :'( ",20, 120, 60, RED);
+                DrawText ("GAME OVER :( ",20, 120, 60, RED);
                 DrawText(TextFormat("%04i sec.", score), 80, 200, 40, altYellow);
                 DrawText ("'BACKSPACE' to return to the menu",20, 300, 30, WHITE);
                 DrawText("'ENTER' to try again",20, 350, 30, WHITE);
