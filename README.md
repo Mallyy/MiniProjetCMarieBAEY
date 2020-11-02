@@ -25,7 +25,9 @@ soit :
 	
 Normalement, la compilation lance le jeu et genere egalement un excutable que vous pourrez utiliser
 
-Sinon : -gcc -o miniProjetmain.exe miniProjetmain.c -s -static -Os -std=c99 -Wall -Iexternal -DPLATFORM_DESKTOP -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I include/
+Sinon : 
+	ajouter dans le dossiser lib la librairie de votre systeme d exploitation ( cintient celle pour window de base )
+	gcc -o miniProjetmain.exe miniProjetmain.c  -lraylib -lopengl32 -lgdi32 -lwinmm -L lib/ -I .
 
 //---------------------------------------
 //Comment l'utiliser
